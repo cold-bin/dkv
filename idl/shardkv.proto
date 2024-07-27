@@ -1,0 +1,49 @@
+syntax = "proto3";
+package shardkvsvc;
+option go_package=".;shardkvsvc";
+
+// Put or Append
+message PutAppendArgs {
+  string Key = 1;
+  string Value = 2;
+  string Op = 3;
+  int64 ClientId = 4;
+  int64 SequenceId = 5;
+}
+
+message PutAppendReply {
+  string Err = 1;
+}
+
+message GetArgs {
+  string Key = 1;
+  int64 ClientId = 2;
+  int64 SequenceId = 3;
+}
+
+message GetReply {
+  string Err = 1;
+  string Value = 2;
+}
+
+message SendShardArg {
+  map<int64, int64> Duptable = 1;
+  int64 ShardId = 2;
+  Shard Shard = 3;
+  int64 ClientId = 4;
+  int64 CfgNum = 5;
+}
+
+message SendShardReply{
+  string err = 1;
+}
+message Shard {
+  map<string, string> Data = 1;
+  int64 ConfigNum = 2;
+}
+
+service ShardKV {
+  rpc Get(GetArgs) returns(GetReply){};
+  rpc PutAppend(PutAppendArgs) returns(PutAppendReply){};
+  rpc AddShard(SendShardArg) returns(SendShardReply){};
+}

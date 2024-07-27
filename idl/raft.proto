@@ -1,0 +1,56 @@
+syntax = "proto3";
+package raftsvc;
+option go_package=".;raftsvc";
+
+message RequestVoteArgs {
+  int64 Term = 1;
+  int64 CandidateId = 2;
+  int64 LastLogIndex = 3;
+  int64 LastLogTerm = 4;
+}
+
+message RequestVoteReply {
+  int64 Term = 1;
+  bool VoteGranted = 2;
+}
+
+message AppendEntriesArgs {
+  int64 Term = 1;
+  int64 LeaderId = 2;
+  int64 PrevLogIndex = 3;
+  int64 PrevLogTerm = 4;
+  repeated LogEntry Entries = 5;
+  int64 LeaderCommit = 6;
+
+}
+
+message LogEntry {
+  bytes Command = 1;
+  int64 Term = 2;
+}
+
+message AppendEntriesReply {
+  int64 Term = 1;
+  bool Success = 2;
+  int64 XTerm = 3;
+  int64 XIndex = 4;
+  int64 XLen = 5;
+}
+
+message InstallSnapshotArgs {
+  int64 Term = 1;
+  int64 LeaderId = 2;
+  int64 LastIncludedIndex = 3;
+  int64 LastIncludedTerm = 4;
+  bytes Data = 5;
+}
+
+message InstallSnapshotReply {
+  int64 Term = 1;
+}
+
+service Raft {
+    rpc RequestVote(RequestVoteArgs) returns (RequestVoteReply){};
+    rpc AppendEntries(AppendEntriesArgs) returns (AppendEntriesReply){};
+    rpc InstallSnapshot(InstallSnapshotArgs) returns (InstallSnapshotReply){};
+}

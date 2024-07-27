@@ -1,0 +1,70 @@
+syntax = "proto3";
+package shardctrlersvc;
+option go_package=".;shardctrlersvc";
+
+message JoinArgs {
+  map<int64,Servers> Servers =1;
+  int64 ClientId = 2;
+  int64 SequenceId = 3;
+}
+
+message Servers {
+  repeated string Hosts=1;
+}
+
+message JoinReply {
+  bool WrongLeader = 1;
+  string Err = 2;
+}
+
+message LeaveArgs {
+  repeated int64 GIDs = 1;
+  int64 ClientId = 2;
+  int64 SequenceId = 3;
+}
+
+message LeaveReply {
+  bool WrongLeader = 1;
+  string Err = 2;
+}
+
+message MoveArgs {
+  int64 Shard = 1;
+  int64 GID = 2;
+  int64 ClientId = 3;
+  int64 SequenceId = 4;
+}
+
+message MoveReply {
+  bool WrongLeader = 1;
+  string Err = 2;
+}
+
+message QueryArgs {
+  int64 Num = 1;
+  int64 ClientId = 2;
+  int64 SequenceId = 3;
+}
+
+message QueryReply {
+  bool WrongLeader = 1;
+  string Err = 2;
+  Config Config = 3;
+}
+
+// A configuration -- an assignment of shards to groups.
+message Config {
+  // config number
+  int64 Num = 1;
+  // shard -> gid 一个分片对应一个副本组，但是多个分片可以对应一个分组
+  repeated int64 Shards = 2;
+  // gid -> servers[] 一个副本组内使用raft来保证集群内的强一致性
+  map<int64,Servers> Groups = 3;
+}
+
+service Shardctrler{
+  rpc Join(JoinArgs) returns(JoinReply){};
+  rpc Leave(LeaveArgs) returns(LeaveReply){};
+  rpc Move(MoveArgs) returns(MoveReply){};
+  rpc Query(QueryArgs) returns(QueryReply){};
+}
